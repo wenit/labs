@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.4.4</version>
+		<relativePath /> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.example</groupId>
+	<artifactId>spring-native-demo</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>spring-native-demo</name>
+	<description>spring-native-demo</description>
+	<properties>
+		<java.version>1.8</java.version>
+		
+		<!-- Specify main class to allow native-image-maven-plugin to find it -->
+		<main.class>com.example.demo.SpringNativeDemoApplication</main.class>
+	</properties>
+
+	<repositories>
+		<!-- ... -->
+		<repository>
+			<id>spring-release</id>
+			<name>Spring release</name>
+			<url>https://repo.spring.io/release</url>
+		</repository>
+	</repositories>
+
+	<pluginRepositories>
+		<!-- ... -->
+		<pluginRepository>
+			<id>spring-release</id>
+			<name>Spring release</name>
+			<url>https://repo.spring.io/release</url>
+		</pluginRepository>
+	</pluginRepositories>
+
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+			<!--<exclusions>
+				<exclusion>
+					<groupId>org.apache.tomcat.embed</groupId>
+					<artifactId>tomcat-embed-core</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.tomcat.embed</groupId>
+					<artifactId>tomcat-embed-websocket</artifactId>
+				</exclusion>
+			</exclusions>--> 
+		</dependency>
+		 <dependency>
+			<groupId>org.apache.tomcat.experimental</groupId>
+			<artifactId>tomcat-embed-programmatic</artifactId>
+			<version>${tomcat.version}</version>
+		</dependency>
+		<!-- spring-native -->
+		<dependency>
+			<groupId>org.springframework.experimental</groupId>
+			<artifactId>spring-native</artifactId>
+			<version>0.9.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<classifier>exec</classifier>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.springframework.experimental</groupId>
+				<artifactId>spring-aot-maven-plugin</artifactId>
+				<version>0.9.1</version>
+				<executions>
+					<execution>
+						<id>test-generate</id>
+						<goals>
+							<goal>test-generate</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>generate</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>native-image</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.graalvm.nativeimage</groupId>
+						<artifactId>native-image-maven-plugin</artifactId>
+						<version>21.0.0</version>
+						<configuration>
+							<!-- The native image build needs to know the entry point to your application -->
+							<mainClass>${main.class}</mainClass>
+							<imageName>${project.artifactId}</imageName>
+						</configuration>
+						<executions>
+							<execution>
+								<goals>
+									<goal>native-image</goal>
+								</goals>
+								<phase>package</phase>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+</project>
